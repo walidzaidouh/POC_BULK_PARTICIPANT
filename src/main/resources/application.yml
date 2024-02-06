@@ -1,0 +1,13 @@
+server:
+  port: 8888
+
+repo:
+  path: C://VIRM_MASS_Switch
+
+
+participant:
+  api:
+    url: http://localhost:8080/
+
+
+
