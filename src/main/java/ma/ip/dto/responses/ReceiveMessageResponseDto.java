@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 @Getter
 @Setter
-public class ReceiveMessageResponseDto extends GenericResponse{
+public class ReceiveMessageResponseDto {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReceiveMessageResponseDto.class);
@@ -16,11 +16,11 @@ public class ReceiveMessageResponseDto extends GenericResponse{
     private FlowEnum flowEnum;
     private String msgId;
     private String NbOfTxs;
-    private String txsId;
-    private boolean isValid;
+
+    private String description;
 
 
     public String toString() {
-        return " message " + flowEnum + " msgId " + msgId + " NbOfTxs " + NbOfTxs + " txsId [ " + txsId + " ] isValid " + isValid;
+        return " message " + flowEnum + " msgId " + msgId + " NbOfTxs " + NbOfTxs;
     }
 }

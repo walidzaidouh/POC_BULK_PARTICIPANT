@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class VirmMassSwitchApplication {
+public class VirmMassBankApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(VirmMassSwitchApplication.class, args);
+        SpringApplication.run(VirmMassBankApplication.class, args);
     }
 
 }
