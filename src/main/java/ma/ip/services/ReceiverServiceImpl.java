@@ -9,27 +9,26 @@ import ma.ip.exceptions.ValidationErrorHandler;
 import ma.ip.services.helper.Pacs002MessageHelper;
 import ma.ip.services.helper.Pacs008MessageHelper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 @Service
 @Slf4j
 public class ReceiverServiceImpl implements ReceiverService {
 
-    @Value("${repo.path}")
-    private String repoPath;
+    @Value("${repo.receiver.path:}")
+    private String repoPathReceiver;
+
+    @Value("${repo.sender.path:}")
+    private String repoPathSender;
 
     @Override
-    public ReceiveMessageResponseDto receive(MultipartFile file, FlowEnum flowEnum) throws IOException {
+    public ReceiveMessageResponseDto receive(String content, FlowEnum flowEnum) {
         ReceiveMessageResponseDto receiveMessageResponse = new ReceiveMessageResponseDto();
-        String content = new String(file.getBytes(), StandardCharsets.ISO_8859_1).trim();
 
         switch (flowEnum) {
             case PACS008:
@@ -45,10 +44,7 @@ public class ReceiverServiceImpl implements ReceiverService {
                 break;
 
             default:
-                receiveMessageResponse.setValid(false);
                 receiveMessageResponse.setDescription("flow.file.message.type.not.found");
-                receiveMessageResponse.setDescriptionForCustomer("flow.file.message.type.not.found");
-                receiveMessageResponse.setStatusCode(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY));
         }
         return receiveMessageResponse;
     }
@@ -59,7 +55,6 @@ public class ReceiverServiceImpl implements ReceiverService {
         Pacs008MessageHelper pacs008MessageHelper = new Pacs008MessageHelper();
         ValidationErrorHandler validationError = pacs008MessageHelper.validate(content);
         if (validationError.hasNoErrors()){
-            message008.setValid(true);
             Pacs008Payload pacs008Payload = pacs008MessageHelper.parse(content);
             message008.setMsgId(pacs008Payload.getMsgId());
             message008.setNbOfTxs(pacs008Payload.getNbOfTxs());
@@ -71,7 +66,7 @@ public class ReceiverServiceImpl implements ReceiverService {
             }
 
 
-            String rootDirectoryName = repoPath + File.separator + pacs008Payload.getTransactions().get(0).getCodeBankSender();
+            String rootDirectoryName = repoPathReceiver + File.separator + pacs008Payload.getTransactions().get(0).getCodeBankReceiver();
             String nestedDirectoryName = FlowEnum.PACS008.toString();
 
             String rootDirectoryPath = rootDirectoryName;
@@ -115,10 +110,8 @@ public class ReceiverServiceImpl implements ReceiverService {
 
 
         } else {
-            message008.setValid(false);
-            message008.setError(true);
+
             message008.setDescription("message.not.valide");
-            message008.setDescriptionForCustomer("message.not.valide");
         }
         return message008;
     }
@@ -129,7 +122,6 @@ public class ReceiverServiceImpl implements ReceiverService {
         Pacs002MessageHelper pacs002MessageHelper = new Pacs002MessageHelper();
         ValidationErrorHandler validationError = pacs002MessageHelper.validate(content);
         if (validationError.hasNoErrors()){
-            message002.setValid(true);
             Pacs002Payload pacs002Payload = pacs002MessageHelper.parse(content);
             message002.setMsgId(pacs002Payload.getMsgId());
             log.info(" Pacs002Payload is {}", pacs002Payload);
@@ -140,7 +132,7 @@ public class ReceiverServiceImpl implements ReceiverService {
             }
 
 
-            String rootDirectoryName = "VIRM_MASS_Switch" + File.separator + pacs002Payload.getPaymentTransactions().get(0).getInstgAgt_MbrId();
+            String rootDirectoryName = repoPathSender + File.separator + pacs002Payload.getPaymentTransactions().get(0).getInstdAgt_MbrId();
             String nestedDirectoryName = FlowEnum.PACS002.toString();
 
             String rootDirectoryPath = rootDirectoryName;
@@ -184,10 +176,7 @@ public class ReceiverServiceImpl implements ReceiverService {
 
 
         } else {
-            message002.setValid(false);
-            message002.setError(true);
             message002.setDescription("message.not.valide");
-            message002.setDescriptionForCustomer("message.not.valide");
         }
         return message002;
     }

@@ -1,9 +1,11 @@
 server:
-  port: 8888
+  port: 8889
 
 repo:
-  path: C://VIRM_MASS_Switch
-
+  receiver:
+    path: C://VIRM_MASS_Receiver
+  sender:
+    path : C://VIRM_MASS_Sender
 
 participant:
   api:
